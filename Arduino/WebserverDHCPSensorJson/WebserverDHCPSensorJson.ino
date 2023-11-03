@@ -143,13 +143,13 @@ void loop () {
            if (data[0] == ' ') {
                // Return home page
                Serial.println(F("http_normal"));
-               rqstSensors();
+               rqstSensors(true);
            }
            else if (strncmp("?q=all ", data, 7) == 0) {
                // Set ledStatus true and redirect to home page
                Serial.println(F("http_all"));
                delta_work = -10.f;
-               rqstSensors();
+               rqstSensors(false);
                delta_work = delta;
            }
            else if (strncmp("?delta=", data, 7) == 0) {
@@ -193,7 +193,7 @@ static void rqstDelta() {
 }  
 
 
-static void rqstSensors() { 
+static void rqstSensors(bool updateTemp) { 
   bfill.emit_p(PSTR(                              
     "HTTP/1.0 200 OK\r\n"
     "Content-Type: application/json\r\n"
@@ -220,7 +220,8 @@ static void rqstSensors() {
 
     if (abs(lastTemp[i] - t)>delta_work)
     {
-       lastTemp[i] = t;
+      if(updateTemp)
+         lastTemp[i] = t;
       // sensor object
       bfill.emit_p(PSTR("{\"type\":\"DS1820\",\"address\":"));    
       float frac = abs(t);
